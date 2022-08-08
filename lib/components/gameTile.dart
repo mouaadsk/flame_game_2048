@@ -5,11 +5,12 @@ import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/extensions.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 
-class GameTile extends PositionComponent {
+class GameTile extends PositionComponent implements SizeProvider {
   TileModel tileModel;
   late TextPaint textPaint;
+  EffectController moveEffectController = EffectController(duration: .1),
+      scaleEffectController = EffectController(duration: .1);
   GameTile(
       {required Vector2 size,
       required this.tileModel,
@@ -38,7 +39,7 @@ class GameTile extends PositionComponent {
 
   void updateColors() {
     this.textPaint = TextPaint(
-        config: TextPaintConfig(
+        style: TextStyle(
             fontSize: size.x * .5,
             color: [2, 4].contains(tileModel.value)
                 ? textColors[2]!
@@ -53,14 +54,19 @@ class GameTile extends PositionComponent {
             gameTile.tileModel.merged == false &&
             tileModel.value == gameTile.tileModel.value ||
         tileModel.value == 0) {
-      onMerging();
-      gameTile.moveTile(
+      print("${tileModel.value} ${gameTile.tileModel.value}");
+      print(tileModel.merged == false &&
+          gameTile.tileModel.merged == false &&
+          tileModel.value == gameTile.tileModel.value);
+      await gameTile.moveTile(
           direction: movingDirection,
           onCompleted: () {
             updateColors();
             gameTile.updateColors();
             this.addScaleEffect();
           });
+      print("merging is complete");
+      onMerging();
       return this.tileModel.merge(tileModel: gameTile.tileModel);
     }
     return false;
@@ -69,44 +75,42 @@ class GameTile extends PositionComponent {
   Future<void> moveTile(
       {required MovingDirection direction,
       required VoidCallback onCompleted}) async {
-    Vector2 oldPosition = this.position.clone(), targetPosition;
+    Vector2 oldPosition = this.position.clone(), moveRatio;
     switch (direction) {
       case MovingDirection.Right:
-        targetPosition = Vector2(width * 1.2, 0);
+        moveRatio = Vector2(width * .2, 0);
         break;
       case MovingDirection.Left:
-        targetPosition = Vector2(-width * 1.2, 0);
+        moveRatio = Vector2(-width * .2, 0);
         break;
       case MovingDirection.Down:
-        targetPosition = Vector2(0, height * 1.2);
+        moveRatio = Vector2(0, height * .2);
         break;
       default:
-        targetPosition = Vector2(0, -height * 1.2);
+        moveRatio = Vector2(0, -height * .2);
         break;
     }
-    MoveEffect moveEffect = MoveEffect(
-        path: [targetPosition],
-        duration: .1,
-        isRelative: true,
-        isInfinite: false,
-        onComplete: () {
-          this.position = oldPosition;
-          onCompleted();
-        });
-    this.add(moveEffect);
+    MoveEffect moveEffect =
+        MoveByEffect(moveRatio, moveEffectController, onComplete: () {
+      // print("old positions is ${this.position.toString()}");
+      this.position = oldPosition;
+      onCompleted();
+      moveEffectController.setToStart();
+    });
+    await this.add(moveEffect);
   }
 
   Future<void> addScaleEffect() async {
     Vector2 originalSize = this.size.clone();
-    SizeEffect sizeEffect = SizeEffect(
-        size: this.size * 1.07,
-        duration: .1,
-        onComplete: () {
-          this.add(SizeEffect(
-            size: originalSize,
-            duration: .1,
-          ));
-        });
+    SizeEffect sizeEffect =
+        SizeEffect.to(this.size * 1.07, scaleEffectController, onComplete: () {
+      scaleEffectController.setToStart();
+      this.add(SizeEffect.to(
+        originalSize,
+        scaleEffectController,
+      ));
+    });
+    scaleEffectController.setToStart();
     await this.add(sizeEffect);
     return;
   }

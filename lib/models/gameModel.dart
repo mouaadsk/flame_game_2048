@@ -27,13 +27,6 @@ class GameModel {
       gameTiles.add(tempList);
       tempList = [];
     }
-    // gameTiles[0][0].tileModel.value = 2;
-    // gameTiles[1][0].tileModel.value = 2;
-    // gameTiles[2][2].tileModel.value = 4;
-    // gameTiles[3][0].tileModel.value = 2;
-    // gameTiles[3][1].tileModel.value = 4;
-    // gameTiles[3][1].tileModel.value = 8;
-    // gameTiles[3][2].tileModel.value = 4;
 
     fillRandomTile(isFirstStart: true);
   }
@@ -82,9 +75,9 @@ class GameModel {
       Future.delayed(Duration(milliseconds: 100)).then((value) {
         fillRandomTile();
         gameChanged = false;
+        //printTilesValues();
       });
     }
-    printTilesValues();
   }
 
   Future<void> addTileToGame() async {
@@ -97,8 +90,9 @@ class GameModel {
 
   void mergeTileList(
       {required List<GameTile> tileList, required mergingDirection}) async {
-    reorderTileList(tileList: tileList, movingDirection: mergingDirection);
-    for (var i = 0; i < tileList.length - 1; i++) {
+    await reorderTileList(
+        tileList: tileList, movingDirection: mergingDirection);
+    for (int i = 0; i < tileList.length - 1; i++) {
       if (!tileList[i].isEmpty()) {
         tileList[i].mergeWithTile(
             movingDirection: mergingDirection,
@@ -108,7 +102,8 @@ class GameModel {
             });
       }
     }
-    reorderTileList(tileList: tileList, movingDirection: mergingDirection);
+    await reorderTileList(
+        tileList: tileList, movingDirection: mergingDirection);
     for (var i = 0; i < tileList.length - 1; i++) tileList[i].reset();
   }
 
@@ -121,29 +116,35 @@ class GameModel {
     return true;
   }
 
-  void reorderTileList(
+  Future<void> reorderTileList(
       {required List<GameTile> tileList,
-      required MovingDirection movingDirection}) {
-    for (var i = 0; i < tileList.length; i++) {
+      required MovingDirection movingDirection}) async {
+    print("Before reorder");
+    printTilesList(tileList: tileList);
+    for (int i = 0; i < tileList.length; i++) {
       if (tileList[i].isEmpty()) {
-        for (var j = i + 1; j < tileList.length; j++) {
+        for (int j = i + 1; j < tileList.length; j++) {
           if (!tileList[j].isEmpty()) {
-            swapTileModels(tile1: tileList[i], tile2: tileList[j]);
-            gameChanged = true;
             if (i != 0)
-              tileList[i]
-                  .moveTile(direction: movingDirection, onCompleted: () {});
+              await tileList[i].moveTile(
+                  direction: movingDirection,
+                  onCompleted: () {
+                    print("Moving the tile from the reorder function");
+                  });
+            gameChanged = true;
+            swapTileModels(tile1: tileList[i], tile2: tileList[j]);
             break;
           }
         }
       }
     }
+    print("After reorder");
+    printTilesList(tileList: tileList);
   }
 
   bool isListNonOrdered({required List<GameTile> listToCheck}) {
     int idOfFirst = -1;
     for (var i = 0; i < listToCheck.length; i++) {
-      print(listToCheck[i].tileModel.value);
       if (listToCheck[i].isEmpty()) {
         if (idOfFirst == -1)
           idOfFirst = i;
@@ -183,5 +184,35 @@ class GameModel {
           Random().nextInt(100) > 10 ? 2 : 4;
       emptyTiles[indexToFill].updateColors();
     }
+  }
+
+  void shiftTileList(
+      {required List<GameTile> listToShift,
+      required MovingDirection movingDirection,
+      required int shiftingStartIndex}) {
+    for (int i = shiftingStartIndex; i < listToShift.length; i++) {
+      if (listToShift[i].isEmpty()) {
+        for (int j = i + 1; j < listToShift.length; j++) {
+          if (!listToShift[j].isEmpty()) {
+            swapTileModels(tile1: listToShift[i], tile2: listToShift[j]);
+            gameChanged = true;
+            if (i != 0)
+              listToShift[i]
+                  .moveTile(direction: movingDirection, onCompleted: () {});
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  void printTilesList({required List<GameTile> tileList}) {
+    String tilesText = "[";
+    for (var i = 0; i < tileList.length; i++) {
+      tilesText +=
+          "${tileList[i].tileModel.value}${i == tileList.length - 1 ? "" : ","}";
+    }
+    tilesText += "]";
+    print(tilesText);
   }
 }

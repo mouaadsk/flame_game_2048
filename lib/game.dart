@@ -3,21 +3,24 @@ import 'package:axie_scholarship/components/gameButton.dart';
 import 'package:axie_scholarship/enums/movingDirection.dart';
 import 'package:axie_scholarship/models/gameModel.dart';
 import 'package:flame/components.dart';
+import 'package:flame/experimental.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 
-class Game2048 extends FlameGame with PanDetector {
+class Game2048 extends FlameGame with PanDetector, HasTappables {
   late GameModel gameModel;
   final int cols, rows;
+
   Game2048({
     required this.rows,
     required this.cols,
   });
 
-  late GameButton rightButton;
+  late GameButton rightButton, leftButton, upButton, downButton;
   late GameBackground bg;
   late Vector2 bgTopLeftCorner;
   bool swipingInTiles = false;
+  double buttonSidelength = 70.0;
   @override
   Future<void> onLoad() async {
     bg = GameBackground(
@@ -28,9 +31,39 @@ class Game2048 extends FlameGame with PanDetector {
     gameModel = GameModel(cols: cols, rows: rows, gameRef: this);
     await gameModel.addTileToGame();
     rightButton = GameButton(
-        position: Vector2(size.x * .5, size.y * .8), size: Vector2(100, 100));
-    // await add(rightButton);
-    print("Tiles are added");
+        position: Vector2(size.x * .5 + buttonSidelength * .75, size.y * .85),
+        size: Vector2.all(buttonSidelength),
+        mergingDirection: MovingDirection.Right,
+        assetLocation: "png/right-arrow.png",
+        spriteSize: Vector2(22.0, 42.0));
+    leftButton = GameButton(
+        position: Vector2(
+            size.x * .5 + buttonSidelength * .75 - buttonSidelength * 1.5,
+            size.y * .85),
+        size: Vector2.all(buttonSidelength),
+        spriteSize: Vector2(22.0, 42.0),
+        mergingDirection: MovingDirection.Left,
+        assetLocation: "png/left-arrow.png");
+    upButton = GameButton(
+        position: Vector2(
+            size.x * .5 + buttonSidelength * .75 - buttonSidelength * .75,
+            size.y * .85 - buttonSidelength * 1.1),
+        size: Vector2.all(buttonSidelength),
+        spriteSize: Vector2(42.0, 22.0),
+        mergingDirection: MovingDirection.Up,
+        assetLocation: "png/up-arrow.png");
+    downButton = GameButton(
+        position: Vector2(
+            size.x * .5 + buttonSidelength * .75 - buttonSidelength * .75,
+            size.y * .85 + buttonSidelength * 1.1),
+        size: Vector2.all(buttonSidelength),
+        spriteSize: Vector2(42.0, 22.0),
+        mergingDirection: MovingDirection.Down,
+        assetLocation: "png/down-arrow.png");
+    this.add(rightButton);
+    this.add(leftButton);
+    this.add(upButton);
+    this.add(downButton);
     return super.onLoad();
   }
 

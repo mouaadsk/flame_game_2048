@@ -9,7 +9,17 @@ import 'package:flutter/painting.dart';
 
 class GameButton extends PositionComponent with Tappable, HasGameRef<Game2048> {
   final Paint paint = Paint()..color = bgColor;
-  GameButton({required Vector2 position, required Vector2 size})
+  MovingDirection mergingDirection;
+  String assetLocation;
+  Vector2 spriteSize;
+  late Sprite sprite;
+  late SpriteComponent buttonSpriteComponent;
+  GameButton(
+      {required Vector2 position,
+      required Vector2 size,
+      required this.spriteSize,
+      required this.mergingDirection,
+      required this.assetLocation})
       : super(position: position, size: size, anchor: Anchor.center);
 
   @override
@@ -30,7 +40,7 @@ class GameButton extends PositionComponent with Tappable, HasGameRef<Game2048> {
   @override
   bool onTapDown(TapDownInfo info) {
     print("Button Right is tapped");
-    gameRef.gameModel.merge(mergingDirection: MovingDirection.Down);
+    gameRef.gameModel.merge(mergingDirection: this.mergingDirection);
     return super.onTapDown(info);
   }
 
@@ -38,5 +48,15 @@ class GameButton extends PositionComponent with Tappable, HasGameRef<Game2048> {
   bool onTapUp(TapUpInfo info) {
     print("Button right on tap up");
     return super.onTapUp(info);
+  }
+
+  @override
+  Future<void>? onLoad() async {
+    sprite = await Sprite.load(assetLocation);
+    buttonSpriteComponent = SpriteComponent(sprite: sprite, size: spriteSize);
+    buttonSpriteComponent.anchor = Anchor.center;
+    buttonSpriteComponent.position = this.size / 2;
+    add(buttonSpriteComponent);
+    return super.onLoad();
   }
 }
