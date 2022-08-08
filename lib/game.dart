@@ -2,8 +2,6 @@ import 'package:axie_scholarship/components/background.dart';
 import 'package:axie_scholarship/components/gameButton.dart';
 import 'package:axie_scholarship/enums/movingDirection.dart';
 import 'package:axie_scholarship/models/gameModel.dart';
-import 'package:flame/components.dart';
-import 'package:flame/experimental.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 
@@ -31,14 +29,14 @@ class Game2048 extends FlameGame with PanDetector, HasTappables {
     gameModel = GameModel(cols: cols, rows: rows, gameRef: this);
     await gameModel.addTileToGame();
     rightButton = GameButton(
-        position: Vector2(size.x * .5 + buttonSidelength * .75, size.y * .85),
+        position: Vector2(size.x * .6 + buttonSidelength * .75, size.y * .85),
         size: Vector2.all(buttonSidelength),
         mergingDirection: MovingDirection.Right,
         assetLocation: "png/right-arrow.png",
         spriteSize: Vector2(22.0, 42.0));
     leftButton = GameButton(
         position: Vector2(
-            size.x * .5 + buttonSidelength * .75 - buttonSidelength * 1.5,
+            size.x * .4 + buttonSidelength * .75 - buttonSidelength * 1.5,
             size.y * .85),
         size: Vector2.all(buttonSidelength),
         spriteSize: Vector2(22.0, 42.0),
@@ -47,7 +45,7 @@ class Game2048 extends FlameGame with PanDetector, HasTappables {
     upButton = GameButton(
         position: Vector2(
             size.x * .5 + buttonSidelength * .75 - buttonSidelength * .75,
-            size.y * .85 - buttonSidelength * 1.1),
+            size.y * .9 - buttonSidelength * 1.1),
         size: Vector2.all(buttonSidelength),
         spriteSize: Vector2(42.0, 22.0),
         mergingDirection: MovingDirection.Up,
@@ -55,7 +53,7 @@ class Game2048 extends FlameGame with PanDetector, HasTappables {
     downButton = GameButton(
         position: Vector2(
             size.x * .5 + buttonSidelength * .75 - buttonSidelength * .75,
-            size.y * .85 + buttonSidelength * 1.1),
+            size.y * .82 + buttonSidelength * 1.1),
         size: Vector2.all(buttonSidelength),
         spriteSize: Vector2(42.0, 22.0),
         mergingDirection: MovingDirection.Down,

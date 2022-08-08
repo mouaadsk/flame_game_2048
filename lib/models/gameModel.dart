@@ -104,6 +104,8 @@ class GameModel {
     }
     await reorderTileList(
         tileList: tileList, movingDirection: mergingDirection);
+    await reorderTileList(
+        tileList: tileList, movingDirection: mergingDirection);
     for (var i = 0; i < tileList.length - 1; i++) tileList[i].reset();
   }
 
