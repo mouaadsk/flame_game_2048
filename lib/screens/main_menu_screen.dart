@@ -1,68 +1,90 @@
 import 'package:axie_scholarship/models/setting_score.dart';
 import 'package:axie_scholarship/screens/game_play_screen.dart';
+import 'package:axie_scholarship/screens/sound_screen.dart';
 import 'package:axie_scholarship/shared/gameColors.dart';
 import 'package:axie_scholarship/widgets/menu_button_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:get/get.dart';
 
-class MainMenuScreen extends StatelessWidget {
-  SettingsAndScoreModel settingsAndScoreModel = SettingsAndScoreModel();
+class MainMenuScreen extends StatefulWidget {
   MainMenuScreen({Key? key}) : super(key: key);
+
+  @override
+  State<MainMenuScreen> createState() => _MainMenuScreenState();
+}
+
+class _MainMenuScreenState extends State<MainMenuScreen> {
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height,
         width = MediaQuery.of(context).size.width;
+    // print(settingsController.isInitialized.value);
     return SafeArea(
-      child: Scaffold(
-        backgroundColor: const Color(0xff3D3A33),
-        body: Align(
-          alignment: Alignment.center,
-          child: Padding(
-            padding: EdgeInsets.only(top: width * .1, bottom: width * .2),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Classic 2048",
-                  style: TextStyle(
-                    color: appMainColor,
-                    fontSize: width * .12,
-                    fontWeight: FontWeight.bold,
+      child: GetX<SettingsAndScoreModel>(
+        builder: (controller) => Scaffold(
+          backgroundColor: const Color(0xff3D3A33),
+          body: controller.isInitialized.value
+              ? Align(
+                  alignment: Alignment.center,
+                  child: Padding(
+                    padding:
+                        EdgeInsets.only(top: width * .1, bottom: width * .2),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Classic 2048",
+                          style: TextStyle(
+                            color: appMainColor,
+                            fontSize: width * .12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Column(
+                          children: [
+                            MenuButton(
+                                assetPath: "assets/images/svg/play-game.svg",
+                                buttonText: "Play",
+                                onPressed: () {
+                                  Get.offNamed("/play");
+                                }),
+                            SizedBox(height: width * .05),
+                            MenuButton(
+                                assetPath: "assets/images/svg/sound-adjust.svg",
+                                buttonText: "Sound",
+                                onPressed: () {
+                                  Get.offNamed("/sound");
+                                }),
+                          ],
+                        ),
+                        Text(
+                          "Highest Score : ${controller.highestScore}",
+                          style: TextStyle(
+                            color: const Color(0xffF5E8DF),
+                            fontSize: width * .08,
+                            fontWeight: FontWeight.w700,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Column(
-                  children: [
-                    MenuButton(
-                        assetPath: "assets/images/svg/play-game.svg",
-                        buttonText: "Play",
-                        onPressed: () {
-                          Navigator.of(context)
-                              .pushReplacement(MaterialPageRoute(
-                                  builder: (context) => GamePlayScreen(
-                                        settingsAndScoreModel:
-                                            settingsAndScoreModel,
-                                      )));
-                        }),
-                    SizedBox(height: width * .05),
-                    MenuButton(
-                        assetPath: "assets/images/svg/sound-adjust.svg",
-                        buttonText: "Sound",
-                        onPressed: () {}),
-                  ],
-                ),
-                Text(
-                  "Highest Score : ${settingsAndScoreModel.highestScore}",
-                  style: TextStyle(
-                      color: const Color(0xffF5E8DF),
-                      fontSize: width * .08,
-                      fontWeight: FontWeight.w700,
-                      fontStyle: FontStyle.italic),
-                ),
-              ],
-            ),
-          ),
+                )
+              : Container(
+                  color: appTextColor1,
+                  width: width,
+                  height: height,
+                  child: SpinKitFadingFour(
+                    size: width * .3,
+                    color: appMainColor,
+                  )),
         ),
       ),
     );

@@ -1,21 +1,23 @@
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SettingsAndScoreModel {
+class SettingsAndScoreModel extends GetxController {
   late int highestScore, soundVolume;
   late bool soundActivated;
   int currentScore = 0;
-  late final SharedPreferences prefs;
-
+  late SharedPreferences prefs;
+  RxBool isInitialized = false.obs;
   SettingsAndScoreModel() {
     initialize();
   }
 
   Future<bool> initialize() async {
     try {
-      prefs = await SharedPreferences.getInstance();
+      final prefs = await SharedPreferences.getInstance();
       highestScore = prefs.getInt("highestScore") ?? 0;
       soundActivated = prefs.getBool("soundActivated") ?? true;
       soundVolume = prefs.getInt("soundVolume") ?? 70;
+      isInitialized.value = true;
       return true;
     } catch (e) {
       print("error in initiliazing the SettingAndScoreModel : ${e.toString()}");

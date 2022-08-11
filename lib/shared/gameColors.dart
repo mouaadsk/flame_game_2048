@@ -18,6 +18,7 @@ Map<int, Color> textColors = {
 };
 // Defining the colors of the menus and the buttons of the application
 const Color appMainColor = Color(0xffEDE0C8),
+    darkerMainColor = Color(0xff968971),
     appGreen = Color(0xff7EFCBA),
     appBrownyOrange = Color(0xffFCC765),
     appLightPurple = Color(0xffBC4CFC),
