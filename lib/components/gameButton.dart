@@ -1,6 +1,6 @@
-import 'package:axie_scholarship/enums/movingDirection.dart';
-import 'package:axie_scholarship/game.dart';
-import 'package:axie_scholarship/shared/gameColors.dart';
+import 'package:game_2048/enums/movingDirection.dart';
+import 'package:game_2048/game.dart';
+import 'package:game_2048/shared/gameColors.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame/input.dart';
@@ -24,7 +24,6 @@ class GameButton extends PositionComponent with Tappable, HasGameRef<Game2048> {
 
   @override
   void render(Canvas canvas) {
-    super.render(canvas);
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromCenter(
@@ -35,19 +34,13 @@ class GameButton extends PositionComponent with Tappable, HasGameRef<Game2048> {
       ),
       paint,
     );
+    return super.render(canvas);
   }
 
   @override
   bool onTapDown(TapDownInfo info) {
-    print("Button Right is tapped");
     gameRef.gameModel.merge(mergingDirection: this.mergingDirection);
     return super.onTapDown(info);
-  }
-
-  @override
-  bool onTapUp(TapUpInfo info) {
-    print("Button right on tap up");
-    return super.onTapUp(info);
   }
 
   @override

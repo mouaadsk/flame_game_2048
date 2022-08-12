@@ -1,30 +1,28 @@
-import 'package:axie_scholarship/components/gameButton.dart';
-import 'package:axie_scholarship/models/setting_score.dart';
-import 'package:axie_scholarship/screens/main_menu_screen.dart';
-import 'package:axie_scholarship/shared/gameColors.dart';
-import 'package:axie_scholarship/widgets/menu_button_widget.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:game_2048/models/setting_score.dart';
+import 'package:game_2048/shared/app_audios.dart';
+import 'package:game_2048/shared/gameColors.dart';
+import 'package:game_2048/widgets/menu_button_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 
 class SoundScreen extends StatefulWidget {
   const SoundScreen({Key? key}) : super(key: key);
-
   @override
   State<SoundScreen> createState() => _SoundScreenState();
 }
 
 class _SoundScreenState extends State<SoundScreen> {
-  final SettingsAndScoreModel controller = Get.find<SettingsAndScoreModel>();
+  final SettingsAndScoreModel settingsModel = Get.find<SettingsAndScoreModel>();
+  final player = AudioPlayer();
   int currentVolume = 0;
   late bool soundActivated;
   @override
   void initState() {
     super.initState();
     setState(() {
-      currentVolume = controller.soundVolume;
-      soundActivated = controller.soundActivated;
+      currentVolume = settingsModel.soundVolume;
+      soundActivated = settingsModel.soundActivated;
     });
   }
 
@@ -61,6 +59,11 @@ class _SoundScreenState extends State<SoundScreen> {
                       valueIndicatorTextStyle: TextStyle(
                           color: appTextColor1, fontWeight: FontWeight.bold)),
                   child: Slider(
+                      onChangeEnd: (value) async {
+                        if (settingsModel.soundActivated)
+                          await player.play(AssetSource("audio/4.mp3"),
+                              volume: (currentVolume / 100).toDouble());
+                      },
                       divisions: 100,
                       label: "$currentVolume",
                       thumbColor: appMainColor,
@@ -73,7 +76,6 @@ class _SoundScreenState extends State<SoundScreen> {
                         setState(() {
                           currentVolume = value.toInt();
                         });
-                        print(currentVolume.toInt());
                       }),
                 ),
                 SizedBox(
@@ -103,10 +105,14 @@ class _SoundScreenState extends State<SoundScreen> {
                             fillColor:
                                 MaterialStateProperty.all<Color>(appTextColor1),
                             value: soundActivated,
-                            onChanged: (value) {
+                            onChanged: (value) async {
                               setState(() {
                                 soundActivated = value ?? true;
                               });
+                              if (soundActivated == true) if (settingsModel
+                                  .soundActivated)
+                                await player.play(AssetSource("audio/8.mp3"),
+                                    volume: (currentVolume / 100).toDouble());
                             }),
                       ),
                     ),
@@ -118,7 +124,16 @@ class _SoundScreenState extends State<SoundScreen> {
                 MenuButton(
                     assetPath: "assets/images/svg/save.svg",
                     buttonText: "Save",
-                    onPressed: () {}),
+                    onPressed: () async {
+                      if (settingsModel.soundActivated)
+                        await player.play(
+                            AssetSource("audio/${buttonClickSound}"),
+                            volume: (currentVolume / 100).toDouble());
+                      settingsModel.setSoundVolume(currentVolume);
+                      settingsModel.soundActivated = soundActivated;
+                      await settingsModel.saveSettings();
+                      await Get.offNamed("/home");
+                    }),
               ],
             ),
           ),

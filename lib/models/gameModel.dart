@@ -1,15 +1,19 @@
 import 'dart:math';
-import 'package:axie_scholarship/components/gameTile.dart';
-import 'package:axie_scholarship/enums/movingDirection.dart';
-import 'package:axie_scholarship/game.dart';
-import 'package:axie_scholarship/models/tileModel.dart';
+import 'package:game_2048/components/gameTile.dart';
+import 'package:game_2048/enums/movingDirection.dart';
+import 'package:game_2048/game.dart';
+import 'package:game_2048/models/setting_score.dart';
+import 'package:game_2048/models/tileModel.dart';
 import 'package:flame/extensions.dart';
+import 'package:get/get.dart';
 
 class GameModel {
   int cols, rows;
   List<List<GameTile>> gameTiles = [];
   Game2048 gameRef;
   bool gameChanged = false;
+  int currentScore = 0, currentMaxTileValue = 0;
+  late final SettingsAndScoreModel settingsAndScoreModel;
   GameModel({required this.cols, required this.rows, required this.gameRef}) {
     List<GameTile> tempList = [];
     for (var i = 0; i < rows; i++) {
@@ -27,24 +31,23 @@ class GameModel {
       gameTiles.add(tempList);
       tempList = [];
     }
-
     fillRandomTile(isFirstStart: true);
+    initialize();
   }
 
-  void merge({required MovingDirection mergingDirection}) {
-    print("Swiping : $mergingDirection");
+  void merge({required MovingDirection mergingDirection}) async {
     List<GameTile> columnList = [];
     switch (mergingDirection) {
       case MovingDirection.Right:
         for (var i = 0; i < rows; i++) {
-          mergeTileList(
+          await mergeTileList(
               tileList: this.gameTiles[i].reversed.toList(),
               mergingDirection: MovingDirection.Right);
         }
         break;
       case MovingDirection.Left:
         for (var i = 0; i < rows; i++) {
-          mergeTileList(
+          await mergeTileList(
               tileList: this.gameTiles[i],
               mergingDirection: MovingDirection.Left);
         }
@@ -54,7 +57,7 @@ class GameModel {
           for (var j = 0; j < rows; j++) {
             columnList.add(gameTiles[j][i]);
           }
-          mergeTileList(
+          await mergeTileList(
               tileList: columnList.reversed.toList(),
               mergingDirection: MovingDirection.Down);
           columnList = [];
@@ -65,19 +68,25 @@ class GameModel {
           for (var j = 0; j < rows; j++) {
             columnList.add(gameTiles[j][i]);
           }
-          mergeTileList(
+          await mergeTileList(
               tileList: columnList, mergingDirection: MovingDirection.Up);
           columnList = [];
         }
         break;
     }
     if (gameChanged) {
-      Future.delayed(Duration(milliseconds: 100)).then((value) {
+      Future.delayed(Duration(milliseconds: 100)).then((value) async {
         fillRandomTile();
         gameChanged = false;
-        //printTilesValues();
+        await saveScore();
+
+        // printTilesValues();
       });
     }
+  }
+
+  Future<void> initialize() async {
+    settingsAndScoreModel = await Get.find<SettingsAndScoreModel>();
   }
 
   Future<void> addTileToGame() async {
@@ -88,18 +97,19 @@ class GameModel {
     }
   }
 
-  void mergeTileList(
+  Future<void> mergeTileList(
       {required List<GameTile> tileList, required mergingDirection}) async {
     await reorderTileList(
         tileList: tileList, movingDirection: mergingDirection);
     for (int i = 0; i < tileList.length - 1; i++) {
       if (!tileList[i].isEmpty()) {
-        tileList[i].mergeWithTile(
+        await tileList[i].mergeWithTile(
             movingDirection: mergingDirection,
             gameTile: tileList[i + 1],
-            onMerging: () {
-              gameChanged = true;
-            });
+            onMerging: () => gameChanged = true);
+        currentMaxTileValue = tileList[i].tileModel.value > currentMaxTileValue
+            ? tileList[i].tileModel.value
+            : currentMaxTileValue;
       }
     }
     await reorderTileList(
@@ -107,6 +117,7 @@ class GameModel {
     await reorderTileList(
         tileList: tileList, movingDirection: mergingDirection);
     for (var i = 0; i < tileList.length - 1; i++) tileList[i].reset();
+    // print("After reordering : ${gameChanged}");
   }
 
   bool swapTileModels({required GameTile tile1, required GameTile tile2}) {
@@ -121,8 +132,7 @@ class GameModel {
   Future<void> reorderTileList(
       {required List<GameTile> tileList,
       required MovingDirection movingDirection}) async {
-    print("Before reorder");
-    printTilesList(tileList: tileList);
+    // printTilesList(tileList: tileList);
     for (int i = 0; i < tileList.length; i++) {
       if (tileList[i].isEmpty()) {
         for (int j = i + 1; j < tileList.length; j++) {
@@ -131,7 +141,7 @@ class GameModel {
               await tileList[i].moveTile(
                   direction: movingDirection,
                   onCompleted: () {
-                    print("Moving the tile from the reorder function");
+                    // print("Moving the tile from the reorder function");
                   });
             gameChanged = true;
             swapTileModels(tile1: tileList[i], tile2: tileList[j]);
@@ -140,8 +150,7 @@ class GameModel {
         }
       }
     }
-    print("After reorder");
-    printTilesList(tileList: tileList);
+    // printTilesList(tileList: tileList);
   }
 
   bool isListNonOrdered({required List<GameTile> listToCheck}) {
@@ -171,20 +180,28 @@ class GameModel {
   }
 
   void fillRandomTile({bool isFirstStart = false}) {
+    Random rand = Random();
+    print("Filling a random tile");
     List<GameTile> emptyTiles = [];
     for (var i = 0; i < rows; i++) {
       emptyTiles.addAll(gameTiles[i].where((tile) => tile.isEmpty()));
     }
-    int indexToFill = Random().nextInt(emptyTiles.length - 1);
-    emptyTiles[indexToFill].tileModel.value =
-        Random().nextInt(100) > 10 ? 2 : 4;
+    int indexToFill = rand.nextInt(emptyTiles.length);
+    int randomValue = rand.nextInt(100) > 10 ? 2 : 4;
+    emptyTiles[indexToFill].tileModel.value = randomValue;
     emptyTiles[indexToFill].updateColors();
+    currentScore += randomValue;
     emptyTiles.remove(emptyTiles[indexToFill]);
+    currentMaxTileValue =
+        randomValue > currentMaxTileValue ? randomValue : currentMaxTileValue;
     if (isFirstStart) {
-      indexToFill = Random().nextInt(emptyTiles.length - 1);
-      emptyTiles[indexToFill].tileModel.value =
-          Random().nextInt(100) > 10 ? 2 : 4;
+      indexToFill = rand.nextInt(emptyTiles.length - 1);
+      randomValue = rand.nextInt(100) > 10 ? 2 : 4;
+      emptyTiles[indexToFill].tileModel.value = randomValue;
+      currentScore += randomValue;
       emptyTiles[indexToFill].updateColors();
+      currentMaxTileValue =
+          randomValue > currentMaxTileValue ? randomValue : currentMaxTileValue;
     }
   }
 
@@ -216,5 +233,23 @@ class GameModel {
     }
     tilesText += "]";
     print(tilesText);
+  }
+
+  Future<void> saveScore() async {
+    if (settingsAndScoreModel.highestScore < this.currentScore) {
+      settingsAndScoreModel.highestScore = this.currentScore;
+      await settingsAndScoreModel.saveSettings();
+    }
+  }
+
+  void newGame() {
+    for (int i = 0; i < rows; i++)
+      for (int j = 0; j < cols; j++) {
+        gameTiles[i][j].tileModel.value = 0;
+        gameTiles[i][j].reset();
+      }
+    currentMaxTileValue = 0;
+    currentScore = 0;
+    fillRandomTile(isFirstStart: true);
   }
 }

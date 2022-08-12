@@ -1,4 +1,4 @@
-import 'package:axie_scholarship/shared/gameColors.dart';
+import 'package:game_2048/shared/gameColors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 

@@ -1,8 +1,9 @@
-import 'package:axie_scholarship/models/setting_score.dart';
-import 'package:axie_scholarship/screens/game_play_screen.dart';
-import 'package:axie_scholarship/screens/sound_screen.dart';
-import 'package:axie_scholarship/shared/gameColors.dart';
-import 'package:axie_scholarship/widgets/menu_button_widget.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:flame_audio/flame_audio.dart';
+import 'package:game_2048/models/setting_score.dart';
+import 'package:game_2048/shared/app_audios.dart';
+import 'package:game_2048/shared/gameColors.dart';
+import 'package:game_2048/widgets/menu_button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
@@ -15,6 +16,8 @@ class MainMenuScreen extends StatefulWidget {
 }
 
 class _MainMenuScreenState extends State<MainMenuScreen> {
+  final player = AudioPlayer();
+  final SettingsAndScoreModel settingsModel = Get.find<SettingsAndScoreModel>();
   @override
   void initState() {
     super.initState();
@@ -52,15 +55,29 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                             MenuButton(
                                 assetPath: "assets/images/svg/play-game.svg",
                                 buttonText: "Play",
-                                onPressed: () {
-                                  Get.offNamed("/play");
+                                onPressed: () async {
+                                  if (settingsModel.soundActivated)
+                                    await player.play(
+                                        AssetSource(
+                                            "audio/${buttonClickSound}"),
+                                        volume:
+                                            (settingsModel.soundVolume / 100)
+                                                .toDouble());
+                                  await Get.offNamed("/play");
                                 }),
                             SizedBox(height: width * .05),
                             MenuButton(
                                 assetPath: "assets/images/svg/sound-adjust.svg",
                                 buttonText: "Sound",
-                                onPressed: () {
-                                  Get.offNamed("/sound");
+                                onPressed: () async {
+                                  if (settingsModel.soundActivated)
+                                    await player.play(
+                                        AssetSource(
+                                            "audio/${buttonClickSound}"),
+                                        volume:
+                                            (settingsModel.soundVolume / 100)
+                                                .toDouble());
+                                  await Get.offNamed("/sound");
                                 }),
                           ],
                         ),

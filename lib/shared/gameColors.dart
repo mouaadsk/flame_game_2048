@@ -10,7 +10,16 @@ Map<int, Color> tileColors = {
   16: Color(0xfff59563),
   32: Color(0xfff67c5f),
   64: Color(0xfff65e3b),
-  128: Color(0xffedcf72)
+  128: Color(0xffedcf72),
+  256: Color(0xffEACF5F),
+  512: Color(0xffECCC4F),
+  1024: Color(0xffEBC735),
+  2048: Color(0xffE4CC68),
+  4096: Color(0xff67CF0C),
+  8192: Color(0xff61C404),
+  16384: Color(0xff57BC00),
+  32768: Color(0xff4DAB00),
+  65536: Color(0xff468C04)
 };
 Map<int, Color> textColors = {
   2: Color(0xff776e65),

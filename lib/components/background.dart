@@ -1,5 +1,5 @@
-import 'package:axie_scholarship/game.dart';
-import 'package:axie_scholarship/shared/gameColors.dart';
+import 'package:game_2048/game.dart';
+import 'package:game_2048/shared/gameColors.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flutter/painting.dart';

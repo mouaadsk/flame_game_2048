@@ -9,7 +9,7 @@ packages:
     source: hosted
     version: "2.8.2"
   audioplayers:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: audioplayers
       url: "https://pub.dartlang.org"

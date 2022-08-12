@@ -1,0 +1,1 @@
+enum ScoreType { TotalScore, MaxTile }

@@ -1,4 +1,4 @@
-name: axie_scholarship
+name: game_2048
 description: 2048 Game Using Flutter Framwork
 
 # The following line prevents the package from being accidentally published to
@@ -21,6 +21,7 @@ environment:
   sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
+  audioplayers: ^1.0.1
   cupertino_icons: ^1.0.5
   flame: ^1.2.1
   flame_audio: ^1.3.0

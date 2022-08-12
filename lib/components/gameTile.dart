@@ -1,12 +1,17 @@
-import 'package:axie_scholarship/enums/movingDirection.dart';
-import 'package:axie_scholarship/models/tileModel.dart';
-import 'package:axie_scholarship/shared/gameColors.dart';
+import 'package:flame_audio/flame_audio.dart';
+import 'package:game_2048/enums/movingDirection.dart';
+import 'package:game_2048/game.dart';
+import 'package:game_2048/models/tileModel.dart';
+import 'package:game_2048/shared/app_audios.dart';
+import 'package:game_2048/shared/gameColors.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/extensions.dart';
 import 'package:flutter/material.dart';
 
-class GameTile extends PositionComponent implements SizeProvider {
+class GameTile extends PositionComponent
+    with ParentIsA<Game2048>
+    implements SizeProvider {
   TileModel tileModel;
   late TextPaint textPaint;
   EffectController moveEffectController = EffectController(duration: .1),
@@ -65,8 +70,11 @@ class GameTile extends PositionComponent implements SizeProvider {
             gameTile.updateColors();
             this.addScaleEffect();
           });
-      print("merging is complete");
       onMerging();
+      if (tileModel.value != 0 &&
+          parent.gameModel.settingsAndScoreModel.soundActivated) {
+        parent.sfxPool[tileModel.value + gameTile.tileModel.value]!.start();
+      }
       return this.tileModel.merge(tileModel: gameTile.tileModel);
     }
     return false;
