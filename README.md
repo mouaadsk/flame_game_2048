@@ -13,7 +13,5 @@ Some Screenhots of the game :<br>
 <img alt="GamePlay Screenshot" src="./assets/images/screenshots/sound_page.jpg" width="216" height="450">
 
 Video Of Game : <br> 
-<video width="216" height="450" controls>
-  <source src="./assets/game_play.mp4" type="video/mp4">
-</video>
+[<img src="https://i.ytimg.com/vi/Bj7VtcEqZ4U/maxresdefault.jpg" width="50%">](https://youtube.com/shorts/Bj7VtcEqZ4U "Game 2048 With Flame Engine And Flutter")
 
